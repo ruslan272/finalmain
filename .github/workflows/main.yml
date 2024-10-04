@@ -1,0 +1,33 @@
+name: finalmain
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+      
+      - name: Test
+        run: go test ./...
+  build_push:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v4
+    
+      - name: build container
+        run: docker build -t $(echo ruslan272/finalmain):$(echo $GITHUB_SHA | head -c7) .
+
+      - name: push image
+        run: docker push $(echo ruslan272/finalmain)
